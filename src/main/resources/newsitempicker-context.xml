@@ -40,7 +40,7 @@
 		</property>
 		<property name="defaultDestination" ref="newsitems" />
 	</bean>
-	<bean id="queryListener" class="com.casehistory.messaging.QueryListener">
+	<bean id="queryListener" class="com.casehistory.newsitempicker.app.QueryListener">
 		<property name="producerTemplate" ref="producerJmsTemplate" />
 	</bean>
 	<!-- The Spring message listener container configuration -->
