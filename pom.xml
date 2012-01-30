@@ -21,6 +21,11 @@
 			<artifactId>log4j</artifactId>
 			<version>1.2.16</version>
 		</dependency>
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-simple</artifactId>
+			<version>1.6.4</version>
+		</dependency>
 		<!-- Solr -->
 		<dependency>
 			<groupId>org.apache.solr</groupId>
@@ -52,7 +57,7 @@
 		<dependency>
 			<groupId>org.apache.hadoop</groupId>
 			<artifactId>hadoop-core</artifactId>
-			<version>0.20.2</version>
+			<version>0.20.204.0</version>
 		</dependency>
 		<!-- Commons projects -->
 		<dependency>
@@ -77,6 +82,37 @@
 			<artifactId>activemq-all</artifactId>
 			<version>5.1.0</version>
 		</dependency>
+		<!-- jsoup HTML parser library @ http://jsoup.org/ -->
+		<dependency>
+			<groupId>org.jsoup</groupId>
+			<artifactId>jsoup</artifactId>
+			<version>1.6.1</version>
+		</dependency>
+		<!-- Mahout -->
+		<dependency>
+			<groupId>org.apache.mahout</groupId>
+			<artifactId>mahout-collections</artifactId>
+			<version>1.0</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.mahout</groupId>
+			<artifactId>mahout-core</artifactId>
+			<version>0.6-SNAPSHOT</version>
+			<scope>system</scope>
+			<systemPath>${basedir}/mahout-core-0.6-SNAPSHOT.jar</systemPath>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.mahout</groupId>
+			<artifactId>mahout-math</artifactId>
+			<version>0.6-SNAPSHOT</version>
+			<scope>system</scope>
+			<systemPath>${basedir}/mahout-math-0.6-SNAPSHOT.jar</systemPath>
+		</dependency>
+		<dependency>
+			<groupId>com.google.guava</groupId>
+			<artifactId>guava</artifactId>
+			<version>r09</version>
+		</dependency>
 	</dependencies>
 	<build>
 		<resources>
@@ -85,6 +121,7 @@
 				<includes>
 					<include>*.xml</include>
 					<include>*.utf8</include>
+					<include>*.properties</include>
 				</includes>
 			</resource>
 		</resources>
@@ -93,6 +130,9 @@
 				<directory>${basedir}/src/test/resources</directory>
 				<includes>
 					<include>*.xml</include>
+					<include>log4j.xml</include>
+					<include>*.utf8</include>
+					<include>*.properties</include>
 				</includes>
 			</testResource>
 		</testResources>
