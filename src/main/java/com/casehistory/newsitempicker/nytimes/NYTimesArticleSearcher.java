@@ -28,7 +28,6 @@ import com.casehistory.newsitempicker.nytimes.NYTimesAPIHelper.ArticleSearchQuer
 import static com.casehistory.newsitempicker.nytimes.NYTimesAPIHelper.*;
 
 /**
- * 
  * @author Abhinav Tripathi
  */
 public class NYTimesArticleSearcher {
@@ -77,12 +76,12 @@ public class NYTimesArticleSearcher {
 		return response.toString();
 	}
 
-	private String getBody(String url) {
+	private String getBody(String url) throws IOException {
 		StringBuilder allText = new StringBuilder();
 		String pageUrl = url;
+		int pageNum = 1;
 		try {
 			Document doc = Jsoup.connect(url).get();
-			int pageNum = 1;
 			int maxPageNum = getNumPages(doc);
 			while (pageNum <= maxPageNum) {
 				pageUrl = pageNum > 1 ? url + "?pagewanted=" + pageNum : url;
@@ -93,7 +92,9 @@ public class NYTimesArticleSearcher {
 				pageNum++;
 			}
 		} catch (IOException e) {
-			System.out.println("Failed to retrieve contents of " + pageUrl);
+			logger.info("Failed to retrieve contents of " + pageUrl);
+			if (pageNum == 1)
+				throw e;
 		}
 
 		return allText.toString();
@@ -132,12 +133,9 @@ public class NYTimesArticleSearcher {
 		return builder.toString();
 	}
 
-	public static void main(String[] args) throws JSONException {
-		String[] query = args;
-
-		NYTimesArticleSearcher searcher = new NYTimesArticleSearcher();
+	public List<NYTimesArticle> getNewsArticles(String[] query) throws JSONException {
 		List<NYTimesArticle> articles = new ArrayList<NYTimesArticle>();
-		JSONObject json = new JSONObject(searcher.getResponse(query));
+		JSONObject json = new JSONObject(getResponse(query));
 		JSONArray results = json.getJSONArray("results");
 		for (int i = 0; i < results.length(); i++) {
 			try {
@@ -145,21 +143,28 @@ public class NYTimesArticleSearcher {
 				String author = "";
 				if (results.getJSONObject(i).has(BYLINE))
 					author = results.getJSONObject(i).get(BYLINE).toString().substring(3);
-				String text = searcher.getBody(url);
+				String text = getBody(url);
 				String date = results.getJSONObject(i).get(DATE).toString();
 				String title = results.getJSONObject(i).get(TITLE).toString();
 				articles.add(new NYTimesArticle(url, author, text, date, title));
-				System.out.println("Fetched article at url " + url);
-				// logger.info("Fetched news article at " + url);
-				// System.out.println(prettyFormat(searcher.getBody(results.getJSONObject(i).get(URL).toString())));
-				// System.out.println(searcher.getBody(results.getJSONObject(i).get(URL).toString()));
+				logger.info("Fetched article at url " + url);
+				// logger.info(prettyFormat(searcher.getBody(results.getJSONObject(i).get(URL).toString())));
+				// logger.info(searcher.getBody(results.getJSONObject(i).get(URL).toString()));
 			} catch (JSONException e) {
 				e.printStackTrace();
+			} catch (IOException e) {
+				logger.info("Failed to fetch article!");
 			}
 		}
 
+		return articles;
+	}
+
+	public static void main(String[] args) throws JSONException {
+		String[] query = args;
+		NYTimesArticleSearcher searcher = new NYTimesArticleSearcher();
 		try {
-			NYTimesDataVectorizer.buildVectors(articles);
+			searcher.getNewsArticles(query);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
