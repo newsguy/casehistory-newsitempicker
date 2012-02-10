@@ -62,13 +62,18 @@ public class NYTimesArticleClusterer {
 			return this;
 		}
 
-		public NYTimesArticleClustererBuilder intialClusters(String initialClustersPath) {
+		public NYTimesArticleClustererBuilder initialClusters(String initialClustersPath) {
 			arguments.addAll(Arrays.asList(new String[] { "-c", initialClustersPath }));
 			return this;
 		}
 
 		public NYTimesArticleClustererBuilder inputPath(String inputPath) {
 			arguments.addAll(Arrays.asList(new String[] { "-i", inputPath }));
+			return this;
+		}
+
+		public NYTimesArticleClustererBuilder overwrite() {
+			arguments.addAll(Arrays.asList(new String[] { "-ow" }));
 			return this;
 		}
 

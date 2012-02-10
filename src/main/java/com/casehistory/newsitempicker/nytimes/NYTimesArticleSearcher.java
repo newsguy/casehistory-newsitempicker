@@ -20,10 +20,9 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 
-import com.casehistory.newsitempicker.json.JSONArray;
-import com.casehistory.newsitempicker.json.JSONException;
-import com.casehistory.newsitempicker.json.JSONObject;
 import com.casehistory.newsitempicker.nytimes.NYTimesAPIHelper.ArticleSearchQueryBuilder;
+import com.casehistory.newsitempicker.nytimes.NYTimesAPIResponse.NYTimesAPIResponseResult;
+import com.google.gson.Gson;
 
 import static com.casehistory.newsitempicker.nytimes.NYTimesAPIHelper.*;
 
@@ -46,12 +45,9 @@ public class NYTimesArticleSearcher {
 		URL queryUrl = null; // TODO: replace null with Option<T> as suggested
 								// by FPFJD book
 		try {
-			queryUrl = new URL(
-					queryBuilder
-							.withQuery(Arrays.asList(query))
-							.withFields(
-									Arrays.asList(new String[] { BODY, URL, AUTHOR, BYLINE, TITLE, DATE, ABSTRACT,
-											WORD_COUNT })).withApiKey(apiKey).formQuery());
+			queryUrl = new URL(queryBuilder.withQuery(Arrays.asList(query))
+					.withFields(Arrays.asList(new String[] { BODY, URL, AUTHOR, BYLINE, TITLE, DATE, ABSTRACT }))
+					.withApiKey(apiKey).formQuery());
 		} catch (MalformedURLException e) {
 			e.printStackTrace();
 		}
@@ -133,34 +129,32 @@ public class NYTimesArticleSearcher {
 		return builder.toString();
 	}
 
-	public List<NYTimesArticle> getNewsArticles(String[] query) throws JSONException {
+	public List<NYTimesArticle> getNewsArticles(String[] query) {
 		List<NYTimesArticle> articles = new ArrayList<NYTimesArticle>();
-		JSONObject json = new JSONObject(getResponse(query));
-		JSONArray results = json.getJSONArray("results");
-		for (int i = 0; i < results.length(); i++) {
+		NYTimesAPIResponse response = new Gson().fromJson(getResponse(query), NYTimesAPIResponse.class);
+		List<NYTimesAPIResponseResult> results = response.results;
+		for (NYTimesAPIResponseResult result : results) {
 			try {
-				String url = results.getJSONObject(i).get(URL).toString();
-				String author = "";
-				if (results.getJSONObject(i).has(BYLINE))
-					author = results.getJSONObject(i).get(BYLINE).toString().substring(3);
-				String text = getBody(url);
-				String date = results.getJSONObject(i).get(DATE).toString();
-				String title = results.getJSONObject(i).get(TITLE).toString();
-				articles.add(new NYTimesArticle(url, author, text, date, title));
-				logger.info("Fetched article at url " + url);
-				// logger.info(prettyFormat(searcher.getBody(results.getJSONObject(i).get(URL).toString())));
-				// logger.info(searcher.getBody(results.getJSONObject(i).get(URL).toString()));
-			} catch (JSONException e) {
-				e.printStackTrace();
+				String text = getBody(result.url);
+				if (!duplicateArticle(articles, text)) {
+					articles.add(new NYTimesArticle(result.url, result.author, text, result.date, result.title));
+				}
+				logger.info("Fetched article at url " + result.url);
+				logger.info(text + "\n");
 			} catch (IOException e) {
-				logger.info("Failed to fetch article!");
+				logger.info("Failed to fetch article at " + result.url);
 			}
 		}
 
 		return articles;
 	}
 
-	public static void main(String[] args) throws JSONException {
+	private boolean duplicateArticle(List<NYTimesArticle> articles, String text) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	public static void main(String[] args) {
 		String[] query = args;
 		NYTimesArticleSearcher searcher = new NYTimesArticleSearcher();
 		try {
