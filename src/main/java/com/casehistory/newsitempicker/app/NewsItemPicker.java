@@ -5,7 +5,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 /**
- * The entry point to the <b>newsitempicker</b> component.
+ * The entry point to the <b>newsitemspicker</b> component.
  * 
  * @author Abhinav Tripathi
  */
